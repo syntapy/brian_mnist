@@ -1,4 +1,5 @@
 from operator import itemgetter
+import scipy.io
 import os.path as op
 import numpy as np
 import brian2 as br
@@ -9,6 +10,9 @@ import snn
 import train
 import initial as init
 import cProfile
+import array as arrr
+
+br.prefs.codegen.target = 'cython'
 
 """
     This script simulates a basic set of feedforward spiking neurons (Izhikevich model).
@@ -16,12 +20,11 @@ import cProfile
     So far the ReSuMe algorithm has been implemented (it seems).
 
     TO DO:
-        X Clean it up so that it is easier to tweak parameters
+        Clean it up so that it is easier to tweak parameters
         X Test the firing time range of a neuron
         X Add multiple layers
         X Tweak parameters to make it solve the XOR problem efficiently
         X Work this into a script which takes arguments that denote whether it should train the weights and save them to a text file, or read the weights from a text file and just run it.
-        Add liquid state machine layer
         Make SetNumSpikes(args...) more efficient, and have the weights made to no be on the border of a change in number of spikes
         Make SetNumSpikes(args...) better at fine tuning the weights, esp. when there are very large numbers of hidden layer neurons
 """
@@ -44,11 +47,34 @@ def trace_calls(frame, event, arg):
          caller_line_no, caller_filename)
     return
 
-sys.exit()
+def rflatten(A):
+    if A.dtype == 'O':
+        dim = np.shape(A)
+        n = len(dim)
+        ad = np.zeros(n)
+        i = 0
+        tmp = []
+        for a in A:
+            tmp.append(rflatten(a))
+        return_val = np.concatenate(tmp)
+    else:
+        return_val = A.flatten()
 
+    return return_val
+
+c1 = scipy.io.loadmat('data1-600.mat')['c1'][0]
+#pudb.set_trace()
+N = len(c1)
+features = np.empty(N, dtype=object)
+
+for i in xrange(N):
+    features[i] = rflatten(c1[i])
+
+labels = scipy.io.loadmat('labels.mat')['labels_body']
+mnist = [features, labels]
+#c1 = None
+#sys.exit()
 #sys.settrace(trace_calls)
-weight_file = "weights.txt"
-
 objects = []
 N = 1
 
@@ -64,38 +90,28 @@ bench='xor'
 levels=4
 
 N_in = 2
-N_liquid = [4, 5, 12] # Total, liquid in, liquid out
+N_liquid = 0#[4, 5, 12] # Total, liquid in, liquid out
 #CP_liquid = 0.7
 N_hidden = [14]
-N_out = 1
+N_out = 4
 
 #file_array = ["Si", "Sl", "Sa", "Sb"]
 #synapes_array = []
 Pc = 0.013
 
 '''     0 - Calculates number of filters    '''
-if bench == 'xor':
-    levels = 1
-    img_dims = (1, 2)
-    N = 1
-    #dir = 'li-data/'
-    #data_dir = 'noise/'
+levels = 1
+n_inputs = 1
+img_dims = 1
 
-#if bench == 'xor':
-#    dA = 10*br.ms
-#    dB = 16*br.ms
-#    desired_times = {0:dB, 1:dA}
+#XX = np.shape(c1[0][0])
+#YY = np.shape(c1[0][1])
+#N_in = 1
 
-
-simtime = 1 #duration of the simulation in s
-number = 1 #number of hidden_neurons
 a = A / br.ms
 b = B
 c = C*br.mV
 d = D*br.mV
-#vtest = -40 * br.mV
-#utest = - 0 * br.mV / br.ms
-#pudb.set_trace()
 tau = tau*br.ms
 bench = bench
 
@@ -118,8 +134,6 @@ reset = '''
     u += d
 '''
 
-#B = b*br.ms
-
 #pudb.set_trace()
 u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV
 v0 = (25*(-5 + A**2 * B**2)) * br.mV
@@ -136,54 +150,52 @@ g = 2
 T = 30
 N_h = 1
 N_o = 1
-# DEFINE OBJECTS
-#pudb.set_trace()
-neuron_names = ['input', [], 'out']
-synapse_names = ['Si', [], 'Sb']
-state_monitor_names = ['out_ge', 'out_v', 'out_u']
-spike_monitor_names = ['sm_in', [], 'sm_out']
 
-for i in range(len(N_hidden)):
-    neuron_names[2].append('hidden_' + str(i))
-    synapse_names[2].append('Sa_' + str(i))
-    spike_monitor_names[2].append('sm_h_' + str(i))
+# DEFINE OBJECTS
+neuron_names = ['input', 'hidden', 'out']
+synapse_names = ['Si', 'Sl']
+state_monitor_names = ['out_ge', 'out_v', 'out_u']
+spike_monitor_names = ['sm_in', 'sm_h', 'sm_out']
+
+#pudb.set_trace()
+N_in = len(mnist[0][0])#(XX[0] * XX[1] * XX[2]) + (YY[0] * YY[1] * YY[2])
+print N_in
+
+#N = 1
 
 neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, \
             parameters, eqs_hidden_neurons, reset, neuron_names)
 synapse_groups = init.SetSynapses(neuron_groups, synapse_names)
 
-state_monitor_out = init.StateMonitors(neuron_groups, 'out', index_record=0) 
-state_monitor_a = init.StateMonitors(neuron_groups, 'hidden_0', index_record=0)
-state_monitor_b = init.StateMonitors(neuron_groups, 'hidden_0', index_record=1)
-state_monitor_c = init.StateMonitors(neuron_groups, 'hidden_0', index_record=2)
-state_monitor_d = init.StateMonitors(neuron_groups, 'hidden_0', index_record=3)
-state_monitor_e = init.StateMonitors(neuron_groups, 'hidden_0', index_record=4)
+state_monitor_in = init.StateMonitors(neuron_groups, 'input', index_record=1)
+state_monitor_hidden = init.StateMonitors(neuron_groups, 'hidden', index_record=0)
+state_monitor_out = init.StateMonitors(neuron_groups, 'output', index_record=0) 
 
 spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)
-state_monitors = [state_monitor_a, state_monitor_b, state_monitor_c]
+state_monitors = [state_monitor_in, state_monitor_hidden, state_monitor_out]
 
 net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
 net = init.SetSynapseInitialWeights(net, synapse_names)
-net = init.SetInitStates(net, vr, v0, u0, I0, ge0, neuron_names)
+net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
 #pudb.set_trace()
-net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+net, trained = init.SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
+#desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
+#                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+
+#if trained == False:
+net = train.ReSuMe(mnist, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-if trained == False:
-    net = train.ReSuMe(desired_times, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-                    neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-
-outputs = [-1, -1, -1, -1]
-
-for number in range(4):
-    net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
-            synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
-
-    indices_l, spikes_l = net[spike_monitor_names[-1]].it
-    outputs[number] = spikes_l[0]
-    print "number, out, desired_out: ", number, ", ", spikes_l[0], ", ", desired_times[number / 2]
+#outputs = [-1, -1, -1, -1]
+#
+#for number in range(4):
+#    net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
+#            synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
+#
+#    indices_l, spikes_l = net[spike_monitor_names[-1]].it
+#    outputs[number] = spikes_l[0]
+#    print "number, out, desired_out: ", number, ", ", spikes_l[0], ", ", desired_times[number / 2]
     #snn.Plot(state_monitor_out, number)
 
     #snn.Plot(state_monitor_a, number)
