@@ -9,8 +9,9 @@ import sys
 import snn 
 import train
 import initial as init
-import cProfile
+#import cProfile
 import array as arrr
+#pudb.set_trace()
 
 br.prefs.codegen.target = 'cython'
 
@@ -184,7 +185,8 @@ net, trained = init.SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, 
 #                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 #if trained == False:
-net = train.ReSuMe(mnist, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+#pudb.set_trace()
+net = train.ReSuMe(net, mnist, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 #outputs = [-1, -1, -1, -1]
