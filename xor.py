@@ -177,15 +177,29 @@ state_monitors = [state_monitor_in, state_monitor_hidden, state_monitor_out]
 net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
 net = init.SetSynapseInitialWeights(net, synapse_names)
 net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
-#pudb.set_trace()
 net, trained = init.SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+
+"""
+for i in range(len(net[synapse_names[-1]])):
+    net[synapse_names[-1]].w[:] = 0
+    net[synapse_names[-1]].w[i] = 30
+    net.store()
+
+    number = 0
+    snn.Run(net, mnist, number, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, \
+            spike_monitor_names, parameters)
+    print i, "\t", net[spike_monitor_names[-1]].it
+    net.restore()
+#pudb.set_trace()
+"""
+
 #desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
 #                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 #if trained == False:
-net = train.ReSuMe(mnist, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+#net = train.ReSuMe(mnist, net, Pc, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+#                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 #outputs = [-1, -1, -1, -1]
 #

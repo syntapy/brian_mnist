@@ -411,6 +411,7 @@ def _modify_neuron_weights(net, neuron_str, synapse_str, neuron_index, dv, N_neu
     N_synapses = len(net[synapse_str])
     A = net[synapse_str].w
     n = len(A[:, neuron_index])
+    pudb.set_trace()
     for i in range(n):
         net[synapse_str].w[i, neuron_index] += dv*br.rand()
 
@@ -427,19 +428,19 @@ def _modify_layer_weights(net, spikes, neuron_str, synapse_str, number, dw_abs, 
 
     if type(D_spikes) == list:
         
-        #pudb.set_trace()
-        for i in range(index, N_neurons, 4):
-            for j in range(N_neurons):
+        pudb.set_trace()
+        #for i in range(index, N_neurons, 4):
+        for j in range(N_neurons):
+            #pudb.set_trace()
+            #print "\t\t\t\tj, spikes[j] = ", j, ", ", spikes[j]
+            if len(spikes[j]) > D_spikes[j]:
                 #pudb.set_trace()
-                #print "\t\t\t\tj, spikes[j] = ", j, ", ", spikes[j]
-                if len(spikes[j]) > D_spikes[j]:
-                    #pudb.set_trace()
-                    modified = True
-                    net = _modify_neuron_weights(net, neuron_str, synapse_str, j, -dw_abs, N_neurons)
-                elif len(spikes[j]) < D_spikes[j]:
-                    #pudb.set_trace()
-                    modified = True
-                    net = _modify_neuron_weights(net, neuron_str, synapse_str, j, dw_abs, N_neurons)
+                modified = True
+                net = _modify_neuron_weights(net, neuron_str, synapse_str, j, -dw_abs, N_neurons)
+            elif len(spikes[j]) < D_spikes[j]:
+                #pudb.set_trace()
+                modified = True
+                net = _modify_neuron_weights(net, neuron_str, synapse_str, j, dw_abs, N_neurons)
 
     else:
         for i in range(index, N_neurons, 4):
@@ -585,7 +586,7 @@ def set_number_spikes(net, mnist, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_na
                             neuron_names, synapse_names, state_monitor_names, \
                             spike_monitor_names, parameters)
 
-                    #pudb.set_trace()
+                    pudb.set_trace()
                     k_modified, net = _basic_training(net, \
                             neuron_names[2], synapse_names[1], spike_monitor_names[2], number, dw_abs, N_h)
 

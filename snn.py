@@ -156,6 +156,7 @@ def Run(net, mnist, number, T, v0, u0, I0, ge0, neuron_names, synapse_names, sta
 
     net.run(T*br.msecond,report=None)
 
+    #pudb.set_trace()
     return net
 
 def Plot(monitor, number):
