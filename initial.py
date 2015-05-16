@@ -110,11 +110,11 @@ def _neuroninitconditions(net, neuron_names, v0, u0, I0, ge0):
 def SetSynapseInitialWeights(net, synapse_names):
     net[synapse_names[0]].connect(True)
     net[synapse_names[0]].w[:]='42.2*(0.3+0.8*rand())'
-    net[synapse_names[0]].delay='(0)*ms'
+    net[synapse_names[0]].delay='0*ms'
 
     net[synapse_names[1]].connect(True)
     net[synapse_names[1]].w[:,:]='9.2*(0.5+ 0.5*rand())'
-    net[synapse_names[1]].delay='3*rand()*ms'
+    net[synapse_names[1]].delay='0*ms'
 
     #pudb.set_trace()
     #for i in range(len(synapse_names[2])):

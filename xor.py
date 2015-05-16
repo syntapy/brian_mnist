@@ -148,7 +148,7 @@ img = np.empty(img_dims)
 count = 0
 g = 2
 
-T = 30
+T = 6
 N_h = 1
 N_o = 1
 
@@ -186,6 +186,7 @@ net, trained = init.SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, 
 
 #if trained == False:
 #pudb.set_trace()
+#mnist_mini = [mnist[0][0:5], mnist[1][0:5]]
 net = train.ReSuMe(net, mnist, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
