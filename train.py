@@ -91,8 +91,26 @@ def _set_out_spike(net, S_i, l, d):
         return a - b
     return 0
 
-def ReSuMe(net, mnist, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
+def _netoutput(net, spike_monitor_names, N_hidden):
+    indices_l, spikes_l = net[spike_monitor_names[-1]].it
+    indices_i, spikes_i = net[spike_monitor_names[-2]].it
+
+    S_l = init.collect_spikes(indices_l, spikes_l, 4)
+    S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
+
+    return S_l, S_i
+
+def Compare(S_l, S_d):
+    if len(S_l) != len(S_d):
+        print "ERROR: Mismatch in tuple length!"
+        sys.exit()
+    for i in range(len(S_l)):
+        if len(S_l[i]) != S_d[i]:
+            return False
+    return True
+        
+
+def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     trained = False
     N = len(mnist[0])
@@ -102,8 +120,9 @@ def ReSuMe(net, mnist, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
     N_h = 1
     N_o = 1
 
-    for number in range(N):
+    for number in range(start, end):
 
+        trained = False
         print "number = ", number
         dw = np.zeros(len(net[synapse_names[-1]]))
 
@@ -124,12 +143,9 @@ def ReSuMe(net, mnist, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                         neuron_names, synapse_names, state_monitor_names, \
                         spike_monitor_names, parameters)
 
-            indices_l, spikes_l = net[spike_monitor_names[-1]].it
-            indices_i, spikes_i = net[spike_monitor_names[-2]].it
-
-            S_l = init.collect_spikes(indices_l, spikes_l, 4)
-            S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
-            S_d = init.out(number)
+            S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
+            label = mnist[1][number]
+            S_d = init.out(label)
 
             t_min, t_max = min(S_i)[0], max(S_i)[0]
 
@@ -155,91 +171,27 @@ def ReSuMe(net, mnist, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
     F.write("True")
     F.close()
 
-def SpikeSlopes(Mv, S_out, d_i=3):
-    
-    """
-        Returns a list of values that indicate the difference in voltage 
-        between each spike's starting threshold voltage and the voltage 
-        d_i time steps before it
+    return net
 
-        NOTE: This assumes that the brian equation solver uses a constant time step
-        throught computation.
-    """
+def Test(net, mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
+        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
-    N = len(S_out.spikes)
-    dt = Mv.times[1] - Mv.times[0]
-    v_diffs = []
-    i_diffs = []
+    hit, miss = 0, 0
 
-    for i in range(N):
-        time = S_out.spikes[i]
-        index_a = time / dt
-        index_b = index_a - d_i 
-
-        v_diffs.append(Mv.values[index_a] - Mv.values[index_b])
-        i_diffs.append(index_a - index_b)
-
-    return v_diffs, dt
-
-def PickWeightIndexA(Sa, S_hidden, S_out):
-    pass
-
-def PickWeightIndicesB(Mv, Sb, S_hidden, S_out, d_i=3):
-
-    """
-        Depending on the delays of the synapses, and the spike times
-        in the hidden layer and output layer, modification of only certain of the weights
-        in the hidden to output synapses will have an effect on each output spike
-
-    """
-
-    v_diffs, i_diffs = SpikeSlopes(Mv, S_out, d_i)
-
-
-"""
-def TestNodeRange(T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
-        parameters, number, net)
-
-    n_hidden_last = len(net[neuron_names[2][-1]])
-    old_weights = np.empty(n_hidden_last)
-
-    return_val = [-1, -1]
-
-    for i in range(n_hidden_last):
-        old_weights[i] = Sb.w[i]
-        Sb.w[i] = 0
-
-    j = 0
-    Sb.w[0] = 0
-    while True:
-
-        snn.Run(T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, \
-                parameters, number, net)
+    print "Testing"
+    for number in range(start, end):
         #pudb.set_trace()
-        spikes_out = S_out.spiketimes[0]
-        #spikes_hidden = S_hidden.spiketimes[0]
-        n_outspikes = len(spikes_out)
-        print "n_outspikes, Sb.w[0] = ", n_outspikes, ", ", Sb.w[0]
+        print "\tnumber = ", number
+        net = snn.Run(net, mnist, number, T, v0, u0, I0, ge0, \
+                    neuron_names, synapse_names, state_monitor_names, \
+                    spike_monitor_names, parameters)
+        S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
+        label = mnist[1][number]
+        S_d = init.out(label)
+        result = Compare(S_l, S_d)
+        if result == True:
+            hit += 1
+        else:
+            miss += 1
 
-        if n_outspikes == 1:
-            if return_val[0] == -1:
-                #pudb.set_trace()
-                return_val[0] = spikes_out[0]# - spikes_hidden[0]
-            return_val[1] = spikes_out[0]
-        elif n_outspikes > 1:
-            #pudb.set_trace()
-            break
-
-        Sb.w[0] = Sb.w[0] + 0.001
-
-        #if j % 1 == 0:
-        #    snn.Plot(Mv, 0)
-        #    
-        #j += 1
-
-
-    for i in range(n_hidden_last):
-        Sb.w[i] = old_weights[i]
-
-    return return_val
-"""
+    return hit, miss

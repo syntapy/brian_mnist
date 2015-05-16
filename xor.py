@@ -187,9 +187,10 @@ net, trained = init.SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, 
 #if trained == False:
 #pudb.set_trace()
 #mnist_mini = [mnist[0][0:5], mnist[1][0:5]]
-net = train.ReSuMe(net, mnist, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+net = train.ReSuMe(net, mnist, 0, len(mnist[0]) / 2, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-
+hit, miss = train.Test(net, mnist, len(mnist[0]) / 2, len(mnist[0]), N_hidden, T, v0, u0, I0, ge0, \
+                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters )
 #outputs = [-1, -1, -1, -1]
 #
 #for number in range(4):
