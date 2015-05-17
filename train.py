@@ -127,7 +127,7 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
         dw = np.zeros(len(net[synapse_names[-1]]))
 
         count = 0
-        while trained == False:
+        for i in range(5):
             
             print "\tnumber = ", number, "count = ", count
             count += 1
@@ -150,21 +150,18 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
             t_min, t_max = min(S_i)[0], max(S_i)[0]
 
             modified = False
-            #pudb.set_trace()
-            for i in range(N_out):
-                print "\t\ti = ", i
-                if i == 3:
-                    pass
-                    #pudb.set_trace()
-                t_in = np.copy(S_i[i:-1:4] / br.ms)
+            for j in range(N_out):
+                print "\t\ti = ", j
+                t_in_tmp = S_i[j:-1:4]
+                t_in = np.copy(t_in_tmp / br.ms)
                 t_in = t_in.flatten()
-                dw = _set_out_spike(net, t_in, S_l[i], S_d[i])
+                dw = _set_out_spike(net, t_in, S_l[j], S_d[j])
                 if type(dw) == list:
-                    modified == True
-                    S_i[i:-1:4] += dw
+                    #modified == True
+                    S_i[j:-1:4] += dw
 
-            if modified == False:
-                trained = True
+            #if modified == False:
+            #    trained = True
 
     init._save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
     F = open("weights/trained.txt", 'w')

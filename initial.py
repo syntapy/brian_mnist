@@ -66,11 +66,11 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, parameters, \
     hidden_neurons = []
     for i in range(len(N_hidden)):
         hidden_neurons.append(br.NeuronGroup(N_hidden[i], \
-            model=eqs_hidden_neurons, threshold='v>vt', refractory=2*br.ms, reset=reset, \
+            model=eqs_hidden_neurons, threshold='v>vt', refractory=6*br.ms, reset=reset, \
             method='rk4', name=neuron_names[1]))
 
     output_neurons = br.NeuronGroup(N_out, model=eqs_hidden_neurons,\
-        threshold='v>vt', refractory=2*br.ms, reset=reset, method='rk4', name=neuron_names[2])
+        threshold='v>vt', refractory=6*br.ms, reset=reset, method='rk4', name=neuron_names[2])
 
     if N_liquid != 0:
         neuron_groups = [input_neurons, \
@@ -792,15 +792,6 @@ def SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
 
     #pudb.set_trace()
     return net, trained
-
-#SetNeuronGroups
-#SetSynapses
-#StateMonitors
-#AddNetwork
-#SetSynapseInitialWeights
-#SetInitStates
-#SetWeights
-#OutputTimeRange
 
 def ReadTimes(file_name):
     F = open(file_name, 'r') 

@@ -13,20 +13,22 @@ C	xor.py	/^C=-65.0$/;"	v
 Compare	train.py	/^def Compare(S_l, S_d):$/;"	f
 D	xor.py	/^D=6.0$/;"	v
 DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
+F	xor.py	/^F = open("train_results.txt", 'w')$/;"	v
 GetInSpikes	snn.py	/^def GetInSpikes(img, bench='mnist'):$/;"	f
 GetSpikes	initial.py	/^def GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):$/;"	f
 GetWeightRange	initial.py	/^def GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):$/;"	f
 I0	xor.py	/^I0 = 0*br.mV \/ br.ms$/;"	v
 L	train.py	/^def L(t):$/;"	f
 N	xor.py	/^N = 1$/;"	v
-N	xor.py	/^N = len(c1)$/;"	v
 N_h	xor.py	/^N_h = 1$/;"	v
 N_hidden	xor.py	/^N_hidden = [14]$/;"	v
 N_in	xor.py	/^N_in = 2$/;"	v
-N_in	xor.py	/^N_in = len(mnist[0][0])#(XX[0] * XX[1] * XX[2]) + (YY[0] * YY[1] * YY[2])$/;"	v
+N_in	xor.py	/^N_in = len(train_mnist[0][0])#(XX[0] * XX[1] * XX[2]) + (YY[0] * YY[1] * YY[2])$/;"	v
 N_liquid	xor.py	/^N_liquid = 0#[4, 5, 12] # Total, liquid in, liquid out$/;"	v
 N_o	xor.py	/^N_o = 1$/;"	v
 N_out	xor.py	/^N_out = 4$/;"	v
+N_test	xor.py	/^N_test = len(c1_test)$/;"	v
+N_train	xor.py	/^N_train = len(c1_train)$/;"	v
 OutputTimeRange	initial.py	/^def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 P_Index	snn.py	/^def P_Index(S_d, S_l):$/;"	f
 P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
@@ -80,23 +82,22 @@ bench	xor.py	/^bench = bench$/;"	v
 bench	xor.py	/^bench='xor'$/;"	v
 c	xor.py	/^c = C*br.mV$/;"	v
 c1	array.py	/^c1 = scipy.io.loadmat('data-600.mat')['c1'][0]$/;"	v
-c1	xor.py	/^c1 = scipy.io.loadmat('data1-600.mat')['c1'][0]$/;"	v
+c1_test	xor.py	/^c1_test = scipy.io.loadmat('\/home\/sami\/Desktop\/test-1.mat')['c1b'][0]$/;"	v
+c1_train	xor.py	/^c1_train = scipy.io.loadmat('\/home\/sami\/Desktop\/train-1.mat')['c1a'][0]$/;"	v
 c2	array.py	/^c2 = rflatten_obj(c1)$/;"	v
 check_number_spikes	initial.py	/^        neuron_names, spike_monitor_names):$/;"	f
 collect_spikes	initial.py	/^def collect_spikes(indices, spikes, N_neurons):$/;"	f
 count	xor.py	/^count = 0$/;"	v
 d	xor.py	/^d = D*br.mV$/;"	v
 d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
-features	xor.py	/^features = np.empty(N, dtype=object)$/;"	v
+elapsed_time	xor.py	/^elapsed_time = time.time() - start_time$/;"	v
 g	xor.py	/^g = 2$/;"	v
 ge0	xor.py	/^ge0 = 0*br.mV$/;"	v
 img	xor.py	/^img = np.empty(img_dims)$/;"	v
 img_dims	xor.py	/^img_dims = 1$/;"	v
-labels	xor.py	/^labels = scipy.io.loadmat('labels.mat')['labels_body']$/;"	v
 levels	xor.py	/^levels = 1$/;"	v
 levels	xor.py	/^levels=4$/;"	v
 make2dList	snn.py	/^def make2dList(rows, cols):$/;"	f
-mnist	xor.py	/^mnist = [features, labels]$/;"	v
 n_inputs	xor.py	/^n_inputs = 1$/;"	v
 net	xor.py	/^                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)$/;"	v
 net	xor.py	/^net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)$/;"	v
@@ -112,6 +113,7 @@ rflatten_obj	array.py	/^def rflatten_obj(A):$/;"	f
 set_number_spikes	initial.py	/^def set_number_spikes(net, mnist, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 spike_monitor_names	xor.py	/^spike_monitor_names = ['sm_in', 'sm_h', 'sm_out']$/;"	v
 spike_monitors	xor.py	/^spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)$/;"	v
+start_time	xor.py	/^start_time = time.time()$/;"	v
 state_monitor_hidden	xor.py	/^state_monitor_hidden = init.StateMonitors(neuron_groups, 'hidden', index_record=0)$/;"	v
 state_monitor_in	xor.py	/^state_monitor_in = init.StateMonitors(neuron_groups, 'input', index_record=1)$/;"	v
 state_monitor_names	xor.py	/^state_monitor_names = ['out_ge', 'out_v', 'out_u']$/;"	v
@@ -121,7 +123,13 @@ synapse_groups	xor.py	/^synapse_groups = init.SetSynapses(neuron_groups, synapse
 synapse_names	xor.py	/^synapse_names = ['Si', 'Sl']$/;"	v
 tau	xor.py	/^tau = tau*br.ms$/;"	v
 tau	xor.py	/^tau=2.0$/;"	v
+test_features	xor.py	/^test_features = np.empty(N_test, dtype=object)$/;"	v
+test_labels	xor.py	/^test_labels = scipy.io.loadmat('\/home\/sami\/Desktop\/test-label.mat')['test_labels_body']$/;"	v
+test_mnist	xor.py	/^test_mnist = [test_features, test_labels]$/;"	v
 trace_calls	xor.py	/^def trace_calls(frame, event, arg):$/;"	f
+train_features	xor.py	/^train_features = np.empty(N_train, dtype=object)$/;"	v
+train_labels	xor.py	/^train_labels = scipy.io.loadmat('\/home\/sami\/Desktop\/train-label.mat')['train_labels_body']$/;"	v
+train_mnist	xor.py	/^train_mnist = [train_features, train_labels]$/;"	v
 u0	xor.py	/^u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV$/;"	v
 u0	xor.py	/^u0 = -8.588384*br.mV$/;"	v
 v0	xor.py	/^v0 = (25*(-5 + A**2 * B**2)) * br.mV$/;"	v
@@ -129,3 +137,4 @@ v0	xor.py	/^v0 = vr$/;"	v
 vr	xor.py	/^vr = -74 * br.mV$/;"	v
 vr	xor.py	/^vr = -76.151418 * br.mV$/;"	v
 vt	xor.py	/^vt = -15 * br.mV$/;"	v
+weight_mnist	xor.py	/^weight_mnist = [test_mnist[0][0:1000], test_mnist[1][0:1000]]$/;"	v

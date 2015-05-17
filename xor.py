@@ -63,16 +63,23 @@ def rflatten(A):
 
     return return_val
 
-c1 = scipy.io.loadmat('data1-600.mat')['c1'][0]
+c1_train = scipy.io.loadmat('/home/sami/Desktop/train-1.mat')['c1a'][0]
+c1_test = scipy.io.loadmat('/home/sami/Desktop/test-1.mat')['c1b'][0]
 #pudb.set_trace()
-N = len(c1)
-features = np.empty(N, dtype=object)
+N_train = len(c1_train)
+N_test = len(c1_test)
+train_features = np.empty(N_train, dtype=object)
+test_features = np.empty(N_test, dtype=object)
 
-for i in xrange(N):
-    features[i] = rflatten(c1[i])
+for i in xrange(N_train):
+    train_features[i] = rflatten(c1_train[i])
+for i in xrange(N_test):
+    test_features[i] = rflatten(c1_test[i])
 
-labels = scipy.io.loadmat('labels.mat')['labels_body']
-mnist = [features, labels]
+train_labels = scipy.io.loadmat('/home/sami/Desktop/train-label.mat')['train_labels_body']
+test_labels = scipy.io.loadmat('/home/sami/Desktop/test-label.mat')['test_labels_body']
+train_mnist = [train_features, train_labels]
+test_mnist = [test_features, test_labels]
 #c1 = None
 #sys.exit()
 #sys.settrace(trace_calls)
@@ -159,7 +166,7 @@ state_monitor_names = ['out_ge', 'out_v', 'out_u']
 spike_monitor_names = ['sm_in', 'sm_h', 'sm_out']
 
 #pudb.set_trace()
-N_in = len(mnist[0][0])#(XX[0] * XX[1] * XX[2]) + (YY[0] * YY[1] * YY[2])
+N_in = len(train_mnist[0][0])#(XX[0] * XX[1] * XX[2]) + (YY[0] * YY[1] * YY[2])
 print N_in
 
 #N = 1
@@ -179,7 +186,8 @@ net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monit
 net = init.SetSynapseInitialWeights(net, synapse_names)
 net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
 #pudb.set_trace()
-net, trained = init.SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+weight_mnist = [test_mnist[0][0:1000], test_mnist[1][0:1000]]
+net, trained = init.SetWeights(net, weight_mnist, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 #desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
 #                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
@@ -187,10 +195,26 @@ net, trained = init.SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, 
 #if trained == False:
 #pudb.set_trace()
 #mnist_mini = [mnist[0][0:5], mnist[1][0:5]]
-net = train.ReSuMe(net, mnist, 0, len(mnist[0]) / 2, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+start, end = 0, 60000
+start_time = time.time()
+#train_mnist_mini = [train_mnist[0][start:end], train_mnist[1][start:end]]
+net = train.ReSuMe(net, train_mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-hit, miss = train.Test(net, mnist, len(mnist[0]) / 2, len(mnist[0]), N_hidden, T, v0, u0, I0, ge0, \
+
+elapsed_time = time.time() - start_time
+
+F = open("train_results.txt", 'w')
+F.write(str(elapsed_time) + " to train on mnist images " + str(start) + " to " + str(end) + "\n")
+
+start_time = time.time()
+start, end = 0, 10000
+hit, miss = train.Test(net, test_mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters )
+elapsed_time = time.time() - start_time
+
+F.write(str(elapsed_time) + " to test on mnist images " + str(start) + " to " + str(end) + "\n")
+F.write(str(hit) + " hits, " + str(miss) + " misses during testing\n")
+F.close()
 #outputs = [-1, -1, -1, -1]
 #
 #for number in range(4):
