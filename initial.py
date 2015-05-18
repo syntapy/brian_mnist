@@ -107,13 +107,15 @@ def _neuroninitconditions(net, neuron_names, v0, u0, I0, ge0):
 
     return net
 
-def SetSynapseInitialWeights(net, synapse_names):
-    net[synapse_names[0]].connect(True)
-    net[synapse_names[0]].w[:]='42.2*(0.3+0.8*rand())'
+def SetSynapseInitialWeights(net, synapse_names, N_hidden):
+    #pudb.set_trace()
+    net[synapse_names[0]].connect('True')
+    net[synapse_names[0]].w[:]='21.8*(1+10.3*(2.0*rand() - 0.3))'
     net[synapse_names[0]].delay='0*ms'
-
-    net[synapse_names[1]].connect(True)
-    net[synapse_names[1]].w[:,:]='9.2*(0.5+ 0.5*rand())'
+    #N_hidden = str(N_hidden)
+    net[synapse_names[1]].connect('True')
+    net[synapse_names[1]].w[:,:]='2.13*(1 + 1.3*(2.0*rand() - 0.3))'
+    #net[synapse_names[1]].w[:] *= ''
     net[synapse_names[1]].delay='0*ms'
 
     #pudb.set_trace()
@@ -284,6 +286,7 @@ def AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, pa
     return net
 
 def SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names, bench='xor'):
+
     """
     Sets initial values of the variables, but input states are not set.
     """
@@ -503,6 +506,29 @@ def out(label):
         N_h = [1, 0, 1, 0]
 
     return N_h
+
+def out_inverse(S_d):
+    #pudb.set_trace()
+    if S_d == [0, 0, 0, 1]:
+        return 0
+    elif S_d == [0, 0, 1, 0]:
+        return 1
+    elif S_d == [0, 0, 1, 1]:
+        return 2
+    elif S_d == [0, 1, 0, 0]:
+        return 3
+    elif S_d == [0, 1, 0, 1]:
+        return 4
+    elif S_d == [0, 1, 1, 0]:
+        return 5
+    elif S_d == [0, 1, 1, 1]:
+        return 6
+    elif S_d == [1, 0, 0, 0]:
+        return 7
+    elif S_d == [1, 0, 0, 1]:
+        return 8
+    elif S_d == [1, 0, 1, 0]:
+        return 8
 
 def set_number_spikes(net, mnist, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
@@ -763,32 +789,32 @@ def SetWeights(net, mnist, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
          neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     trained = False
-    #pudb.set_trace()
-    if _correct_weights_exist(net, synapse_names, 0, len(synapse_names)):
-        net = _readweights(net, synapse_names, 0, len(synapse_names))
-        if _trained():
-            trained = True
-        net.store()
-    elif _correct_weights_exist(net, synapse_names, 0, len(synapse_names)-1):
-        net = _readweights(net, synapse_names, 0, len(synapse_names)-1)
-        net.store()
-        net = set_number_spikes(net, mnist, 1, T, N_h, N_o, v0, u0, I0, ge0, \
-                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-        net.store()
-        _save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
-    else:
-        net = set_number_spikes(net, mnist, 0, T, N_h, N_o, v0, u0, I0, ge0, \
-                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+    pudb.set_trace()
+    if False:
+        if _correct_weights_exist(net, synapse_names, 0, len(synapse_names)):
+            net = _readweights(net, synapse_names, 0, len(synapse_names))
+            if _trained():
+                trained = True
+            net.store()
+        elif _correct_weights_exist(net, synapse_names, 0, len(synapse_names)-1):
+            net = _readweights(net, synapse_names, 0, len(synapse_names)-1)
+            net.store()
+            net = set_number_spikes(net, mnist, 1, T, N_h, N_o, v0, u0, I0, ge0, \
+                    neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+            net.store()
+            _save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
+        else:
+            net = set_number_spikes(net, mnist, 0, T, N_h, N_o, v0, u0, I0, ge0, \
+                    neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-        net.store()
-        _save_weights(net, synapse_names, 0, len(synapse_names)-1)
+            net.store()
+            _save_weights(net, synapse_names, 0, len(synapse_names)-1)
 
-        net = set_number_spikes(net, mnist, 1, T, N_h, N_o, v0, u0, I0, ge0, \
-                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
+            net = set_number_spikes(net, mnist, 1, T, N_h, N_o, v0, u0, I0, ge0, \
+                    neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-        net.store()
-        _save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
-
+            net.store()
+            _save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
 
     #pudb.set_trace()
     return net, trained

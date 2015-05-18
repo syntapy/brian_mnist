@@ -54,7 +54,7 @@ def ReadTimes(filename):
 
     return desired_times
 
-def _resume_step(ta, tb):
+def _resume_step(index, ta, tb, w):
     A = 0.7
     tau = 0.5
     #pudb.set_trace()
@@ -66,9 +66,21 @@ def _resume_step(ta, tb):
 
     return a + A*np.exp(-d / tau)
 
-def _set_out_spike(net, S_i, l, d):
+#def _resume_step_out(index, ta, tb, w):
+#    A = 0.7
+#    tau = 0.5
+#    pudb.set_trace()
+#    array = tb - ta
+#    max_indices = np.greater_equal(array, 0)
+#    max_indices = max_indices.astype(int, copy=False)
+#    d = array*max_indices
+#    a = 0.2
+#
+#    return a + A*np.exp(-d / tau)
+
+def _set_out_spike(net, index, S_i, l, d):
     """
-        Returnsthe change in weight for a particular synaptic
+        Returns the change in weight for a particular synaptic
         connection between learning neurons and output neurons.
         as computed by ReSuMe-style learning rule.
 
@@ -81,13 +93,15 @@ def _set_out_spike(net, S_i, l, d):
     """
     if len(l) != d:
         x, y = 1.8, 1.8
+        #pudb.set_trace()
+        w = net['Sl'].w[:]
         if d == 1:
-            a = _resume_step(S_i, d)
-            b = _resume_step(S_i, x*d)
+            a = _resume_step(index, S_i, d, w)
+            b = _resume_step(index, S_i, x*d, w)
         elif d == 0:
             dn = l[0]/br.ms
-            a = _resume_step(S_i, x*dn)
-            b = _resume_step(S_i, dn)
+            a = _resume_step(index, S_i, x*dn, w)
+            b = _resume_step(index, S_i, dn, w)
         return a - b
     return 0
 
@@ -109,7 +123,6 @@ def Compare(S_l, S_d):
             return False
     return True
         
-
 def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     trained = False
@@ -122,13 +135,12 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
 
     for number in range(start, end):
 
-        trained = False
         print "number = ", number
         dw = np.zeros(len(net[synapse_names[-1]]))
 
         count = 0
-        for i in range(5):
-            
+        while True:
+
             print "\tnumber = ", number, "count = ", count
             count += 1
 
@@ -139,31 +151,41 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
             rnd.shuffle(lst)
 
             k = 0
+            #pudb.set_trace()
             net = snn.Run(net, mnist, number, T, v0, u0, I0, ge0, \
                         neuron_names, synapse_names, state_monitor_names, \
                         spike_monitor_names, parameters)
 
+            #pudb.set_trace()
             S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
             label = mnist[1][number]
             S_d = init.out(label)
 
+            print "\t\tS_l = ", S_l
+            print "\t\tS_d = ", S_d
+            #sys.exit()
+            #pudb.set_trace()
             t_min, t_max = min(S_i)[0], max(S_i)[0]
 
             modified = False
+            w = net[synapse_names[-1]].w[:]
             for j in range(N_out):
-                print "\t\ti = ", j
-                t_in_tmp = S_i[j:-1:4]
-                t_in = np.copy(t_in_tmp / br.ms)
-                t_in = t_in.flatten()
-                dw = _set_out_spike(net, t_in, S_l[j], S_d[j])
-                if type(dw) == list:
-                    #modified == True
-                    S_i[j:-1:4] += dw
+                #print "\t\ti = ", j
+                t_in_tmp = np.copy(S_i / br.ms)
+                t_in = t_in_tmp.flatten()
+                #pudb.set_trace()
+                dw = _set_out_spike(net, j, t_in, S_l[j], S_d[j])
+                print "\t\t\tj, dw = ", j, ", ", dw
+                if type(dw) == np.ndarray:
+                    modified = True
+                    w += dw
+            net[synapse_names[-1]].w[:] = w[:]
+            net.restore()
+            net.store()
+            if modified == False:
+                break
 
-            #if modified == False:
-            #    trained = True
-
-    init._save_weights(net, synapse_names, len(synapse_names)-1, len(synapse_names))
+    init._save_weights(net, synapse_names, 0, len(synapse_names))
     F = open("weights/trained.txt", 'w')
     F.write("True")
     F.close()
@@ -174,6 +196,7 @@ def Test(net, mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     hit, miss = 0, 0
+    hit_ind, miss_ind = np.zeros(10, dtype=int), np.zeros(10, dtype=int)
 
     print "Testing"
     for number in range(start, end):
@@ -185,10 +208,13 @@ def Test(net, mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
         S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
         label = mnist[1][number]
         S_d = init.out(label)
+        index = init.out_inverse(S_d)
         result = Compare(S_l, S_d)
         if result == True:
+            hit_ind[index] += 1
             hit += 1
         else:
+            miss_ind[index] += 1
             miss += 1
 
-    return hit, miss
+    return hit, miss, hit_ind, miss_ind

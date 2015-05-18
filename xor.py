@@ -63,8 +63,11 @@ def rflatten(A):
 
     return return_val
 
-c1_train = scipy.io.loadmat('/home/sami/Desktop/train-1.mat')['c1a'][0]
-c1_test = scipy.io.loadmat('/home/sami/Desktop/test-1.mat')['c1b'][0]
+c1_train = scipy.io.loadmat('/home/sami/Desktop/mnist-train/train-1.mat')['c1a'][0][0:20]
+c1_test = scipy.io.loadmat('/home/sami/Desktop/mnist-train/test-1.mat')['c1b'][0][0:20]
+#pudb.set_trace()
+print c1_train[0]
+#sys.exit()
 #pudb.set_trace()
 N_train = len(c1_train)
 N_test = len(c1_test)
@@ -76,8 +79,9 @@ for i in xrange(N_train):
 for i in xrange(N_test):
     test_features[i] = rflatten(c1_test[i])
 
-train_labels = scipy.io.loadmat('/home/sami/Desktop/train-label.mat')['train_labels_body']
-test_labels = scipy.io.loadmat('/home/sami/Desktop/test-label.mat')['test_labels_body']
+train_labels = scipy.io.loadmat('/home/sami/Desktop/mnist-train/train-label.mat')['train_labels_body'][0:20]
+test_labels = scipy.io.loadmat('/home/sami/Desktop/mnist-train/test-label.mat')['test_labels_body'][0:20]
+print train_labels[0][0]
 train_mnist = [train_features, train_labels]
 test_mnist = [test_features, test_labels]
 #c1 = None
@@ -143,19 +147,19 @@ reset = '''
 '''
 
 #pudb.set_trace()
-u0 = (25*(-5*A*B + A**2 * B**2)) * br.mV
-v0 = (25*(-5 + A**2 * B**2)) * br.mV
+u0 = ((25*(-5*A*B + A**2 * B**2)) + 0) * br.mV
+v0 = ((25*(-5 + A**2 * B**2)) + 40) * br.mV
 I0 = 0*br.mV / br.ms
 ge0 = 0*br.mV
-u0 = -8.588384*br.mV
-v0 = vr
+u0 = (-8.588384 - 12)*br.mV
+v0 = vr + 10*br.mV
 
 img = np.empty(img_dims)
 
 count = 0
 g = 2
 
-T = 6
+T = 8
 N_h = 1
 N_o = 1
 
@@ -169,8 +173,6 @@ spike_monitor_names = ['sm_in', 'sm_h', 'sm_out']
 N_in = len(train_mnist[0][0])#(XX[0] * XX[1] * XX[2]) + (YY[0] * YY[1] * YY[2])
 print N_in
 
-#N = 1
-
 neuron_groups = init.SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, \
             parameters, eqs_hidden_neurons, reset, neuron_names)
 synapse_groups = init.SetSynapses(neuron_groups, synapse_names)
@@ -183,21 +185,11 @@ spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)
 state_monitors = [state_monitor_in, state_monitor_hidden, state_monitor_out]
 
 net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
-net = init.SetSynapseInitialWeights(net, synapse_names)
+net = init.SetSynapseInitialWeights(net, synapse_names, N_hidden)
 net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
-#pudb.set_trace()
-weight_mnist = [test_mnist[0][0:1000], test_mnist[1][0:1000]]
-net, trained = init.SetWeights(net, weight_mnist, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
-                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
-#desired_times = init.OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, \
-#                neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-#if trained == False:
-#pudb.set_trace()
-#mnist_mini = [mnist[0][0:5], mnist[1][0:5]]
-start, end = 0, 60000
+start, end = 0, 1#12000#0
 start_time = time.time()
-#train_mnist_mini = [train_mnist[0][start:end], train_mnist[1][start:end]]
 net = train.ReSuMe(net, train_mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
@@ -207,147 +199,14 @@ F = open("train_results.txt", 'w')
 F.write(str(elapsed_time) + " to train on mnist images " + str(start) + " to " + str(end) + "\n")
 
 start_time = time.time()
-start, end = 0, 10000
-hit, miss = train.Test(net, test_mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
+start, end = 0, 1#2000#0
+hit, miss, hit_r, miss_r = train.Test(net, train_mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters )
 elapsed_time = time.time() - start_time
 
 F.write(str(elapsed_time) + " to test on mnist images " + str(start) + " to " + str(end) + "\n")
 F.write(str(hit) + " hits, " + str(miss) + " misses during testing\n")
+
+F.write("Hit array: " + np.array_str(hit_r) + "\n")
+F.write("Miss array: " + np.array_str(miss_r) + "\n")
 F.close()
-#outputs = [-1, -1, -1, -1]
-#
-#for number in range(4):
-#    net = snn.Run(net, T, v0, u0, I0, ge0, neuron_names, \
-#            synapse_names, state_monitor_names, spike_monitor_names, parameters, number)
-#
-#    indices_l, spikes_l = net[spike_monitor_names[-1]].it
-#    outputs[number] = spikes_l[0]
-#    print "number, out, desired_out: ", number, ", ", spikes_l[0], ", ", desired_times[number / 2]
-    #snn.Plot(state_monitor_out, number)
-
-    #snn.Plot(state_monitor_a, number)
-    #snn.Plot(state_monitor_b, number)
-    #snn.Plot(state_monitor_c, number)
-    #snn.Plot(state_monitor_d, number)
-    #snn.Plot(state_monitor_e, number)
-    #pudb.set_trace()
-    #tested = snn.CheckNumSpikes(T, 1, 1, v0, u0, I0, ge0, neuron_names, spike_monitor_names, net)
-#
-#snn.SetNumSpikes(T, N_h, N_o, v0, u0, I0, ge0, number, net)
-
-# LIQUID STATE MACHINE
-
-#pudb.set_trace()
-#for i in range(len(hidden_neurons)):
-#    S_hidden.append(br.SpikeMonitor(hidden_neurons[i], record=True))
-#
-#S_out = br.SpikeMonitor(output_neurons, record=True)
-
-#objects.append(input_neurons)
-#objects.append(output_neurons)
-#for i in range(len(hidden_neurons)):
-#    objects.append(hidden_neurons[i])
-#
-#objects.append(S_in)
-#objects.append(S_out)
-#for i in range(len(hidden_neurons)):
-#    objects.append(S_hidden[i])
-#
-#for i in range(len(N_hidden)):
-#    objects.append(Sa[i])
-#
-#objects.append(Sb)
-#
-#objects.append(M)
-#objects.append(Mv)
-#objects.append(Mu)
-
-#net = br.Network(objects)
-#pudb.set_trace()
-
-'''         TRAINING        '''
-#Net = br.Network(objects)
-#OUT = open('weights.txt', 'a')
-
-#number = 3
-#N_o = 1
-#N_h = 1
-#for i in range(10):
-#    for number in range(3, -1, -1):
-#        snn.SetNumSpikes(T, N_h, N_o, v0, u0, bench, number, \
-#            input_neurons, liquid_neurons, hidden_neurons, output_neurons, \
-#            Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=False, letter=None)
-#        print "\tDone! for number = ", number
-
-
-"""
-print "======================================================================"
-print "\t\t\tSetting number of spikes"
-print "======================================================================"
-
-pudb.set_trace()
-if op.isfile(weight_file):
-    #pudb.set_trace()
-    Si, Sl, Sa, Sb = snn.ReadWeights(Si, Sl, Sa, Sb, weight_file)
-
-else:
-    snn.SaveWeights(Si, Sl, Sa, Sb, "weights.txt")
-
-#pudb.set_trace()
-#Sa[0].w[:] = '0*br.mV'
-snn.Run(T, v0, u0, bench, 0, input_neurons, hidden_neurons, output_neurons, Si, Sl, Sa, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
-#pudb.set_trace()
-#snn.Plot(N, Nu, Nv, 1)
-#snn.Plot(M, Mu, Mv, 1)
-
-print "======================================================================"
-print "\t\t\tTraining with ReSuMe"
-print "======================================================================"
-
-if bench == 'xor':
-    if op.isfile("times.txt"):
-        desired_times = train.ReadTimes("times.txt")
-    else:
-
-        desired_times = [-1, -1]
-        extreme_spikes = train.TestNodeRange(T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sl, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
-        diff = extreme_spikes[1] + extreme_spikes[0]
-        diff_r = diff / 10
-
-        extreme_spikes[0] = extreme_spikes[0] + diff_r
-        extreme_spikes[1] = extreme_spikes[1] + diff_r
-
-        desired_times[0] = extreme_spikes[0]*br.second
-        desired_times[1] = extreme_spikes[1]*br.second
-
-        f = open("times.txt", 'w')
-        f.write(str(float(desired_times[0])))
-        f.write("\n")
-        f.write(str(float(desired_times[1])))
-        f.write("\n")
-
-else:
-    pudb.set_trace()
-
-for number in range(4):
-    print "\tTRAINING: number = ", number
-    train.ReSuMe(desired_times, Pc, T, N, v0, u0, bench, number, input_neurons, hidden_neurons, output_neurons, Sa, Sl, Sb, M, Mv, Mu, S_in, S_hidden, S_out)
-
-print "======================================================================"
-print "\t\t\tTesting"
-print "======================================================================"
-
-#pudb.set_trace()
-for number in range(4):
-    snn.Run(T, v0, u0, bench, number, \
-            input_neurons, hidden_neurons, output_neurons, \
-            Sa, Sl, Sb, M, Mv, Mu, S_in, S_hidden, S_out, train=True, letter=None)
-
-    if number < 2:
-        desired = desired_times[0]
-    else:
-        desired = desired_times[1]
-
-    print "Number, Desired, Actual = ", number, ", ", desired, ", ", S_out.spiketimes[0]
-"""
