@@ -151,8 +151,8 @@ u0 = ((25*(-5*A*B + A**2 * B**2)) + 0) * br.mV
 v0 = ((25*(-5 + A**2 * B**2)) + 40) * br.mV
 I0 = 0*br.mV / br.ms
 ge0 = 0*br.mV
-u0 = (-8.588384 - 12)*br.mV
-v0 = vr + 10*br.mV
+u0 = (-8.588384 - 0*12)*br.mV
+v0 = vr + 0*10*br.mV
 
 img = np.empty(img_dims)
 
@@ -187,10 +187,13 @@ state_monitors = [state_monitor_in, state_monitor_hidden, state_monitor_out]
 net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
 net = init.SetSynapseInitialWeights(net, synapse_names, N_hidden)
 net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
+net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+                    neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 start, end = 0, 1#12000#0
 start_time = time.time()
-net = train.ReSuMe(net, train_mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+if trained == False:
+    net = train.ReSuMe(net, train_mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 elapsed_time = time.time() - start_time

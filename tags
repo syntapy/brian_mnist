@@ -132,9 +132,9 @@ train_features	xor.py	/^train_features = np.empty(N_train, dtype=object)$/;"	v
 train_labels	xor.py	/^train_labels = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/train-label.mat')['train_labels_body'][0:20]$/;"	v
 train_mnist	xor.py	/^train_mnist = [train_features, train_labels]$/;"	v
 u0	xor.py	/^u0 = ((25*(-5*A*B + A**2 * B**2)) + 0) * br.mV$/;"	v
-u0	xor.py	/^u0 = (-8.588384 - 12)*br.mV$/;"	v
+u0	xor.py	/^u0 = (-8.588384 - 0*12)*br.mV$/;"	v
 v0	xor.py	/^v0 = ((25*(-5 + A**2 * B**2)) + 40) * br.mV$/;"	v
-v0	xor.py	/^v0 = vr + 10*br.mV$/;"	v
+v0	xor.py	/^v0 = vr + 0*10*br.mV$/;"	v
 vr	xor.py	/^vr = -74 * br.mV$/;"	v
 vr	xor.py	/^vr = -76.151418 * br.mV$/;"	v
 vt	xor.py	/^vt = -15 * br.mV$/;"	v

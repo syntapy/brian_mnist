@@ -55,8 +55,8 @@ def ReadTimes(filename):
     return desired_times
 
 def _resume_step(index, ta, tb, w):
-    A = 0.7
-    tau = 0.5
+    A = 2.5
+    tau = 1.5
     #pudb.set_trace()
     array = tb - ta
     max_indices = np.greater_equal(array, 0)
@@ -92,7 +92,7 @@ def _set_out_spike(net, index, S_i, l, d):
         array handling etc...
     """
     if len(l) != d:
-        x, y = 1.8, 1.8
+        x, y, z = 1.8, 1.8, 1.0
         #pudb.set_trace()
         w = net['Sl'].w[:]
         if d == 1:
@@ -102,6 +102,7 @@ def _set_out_spike(net, index, S_i, l, d):
             dn = l[0]/br.ms
             a = _resume_step(index, S_i, x*dn, w)
             b = _resume_step(index, S_i, dn, w)
+            z = -z
         return a - b
     return 0
 
@@ -122,7 +123,7 @@ def Compare(S_l, S_d):
         if len(S_l[i]) != S_d[i]:
             return False
     return True
-        
+
 def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
     trained = False
@@ -175,12 +176,15 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
                 t_in = t_in_tmp.flatten()
                 #pudb.set_trace()
                 dw = _set_out_spike(net, j, t_in, S_l[j], S_d[j])
-                print "\t\t\tj, dw = ", j, ", ", dw
+                #print "\t\t\tj, dw = ", j, ", ", dw
                 if type(dw) == np.ndarray:
                     modified = True
-                    w += dw
-            net[synapse_names[-1]].w[:] = w[:]
+                    #w_tmp = w[j::4]
+                    w[j::4] += dw
+            print "\t\t\tDw = ", w - net[synapse_names[-1]].w[:]
+            print "\t\t\tw = ", w
             net.restore()
+            net[synapse_names[-1]].w[:] = w
             net.store()
             if modified == False:
                 break
