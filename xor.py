@@ -63,8 +63,8 @@ def rflatten(A):
 
     return return_val
 
-c1_train = scipy.io.loadmat('/home/sami/Desktop/mnist-train/train-1.mat')['c1a'][0][0:20]
-c1_test = scipy.io.loadmat('/home/sami/Desktop/mnist-train/test-1.mat')['c1b'][0][0:20]
+c1_train = scipy.io.loadmat('/home/sami/Desktop/mnist-train/train-1.mat')['c1a'][0]
+c1_test = scipy.io.loadmat('/home/sami/Desktop/mnist-train/test-1.mat')['c1b'][0]
 #pudb.set_trace()
 print c1_train[0]
 #sys.exit()
@@ -79,8 +79,8 @@ for i in xrange(N_train):
 for i in xrange(N_test):
     test_features[i] = rflatten(c1_test[i])
 
-train_labels = scipy.io.loadmat('/home/sami/Desktop/mnist-train/train-label.mat')['train_labels_body'][0:20]
-test_labels = scipy.io.loadmat('/home/sami/Desktop/mnist-train/test-label.mat')['test_labels_body'][0:20]
+train_labels = scipy.io.loadmat('/home/sami/Desktop/mnist-train/train-label.mat')['train_labels_body']
+test_labels = scipy.io.loadmat('/home/sami/Desktop/mnist-train/test-label.mat')['test_labels_body']
 print train_labels[0][0]
 train_mnist = [train_features, train_labels]
 test_mnist = [test_features, test_labels]
@@ -190,7 +190,7 @@ net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
 net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                     neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-start, end = 0, 1#12000#0
+start, end = 0, 12000#0
 start_time = time.time()
 if trained == False:
     net = train.ReSuMe(net, train_mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
@@ -202,7 +202,7 @@ F = open("train_results.txt", 'w')
 F.write(str(elapsed_time) + " to train on mnist images " + str(start) + " to " + str(end) + "\n")
 
 start_time = time.time()
-start, end = 0, 1#2000#0
+start, end = 0, 1000#0#0
 hit, miss, hit_r, miss_r = train.Test(net, train_mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters )
 elapsed_time = time.time() - start_time

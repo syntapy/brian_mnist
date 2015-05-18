@@ -82,8 +82,8 @@ bench	xor.py	/^bench = bench$/;"	v
 bench	xor.py	/^bench='xor'$/;"	v
 c	xor.py	/^c = C*br.mV$/;"	v
 c1	array.py	/^c1 = scipy.io.loadmat('data-600.mat')['c1'][0]$/;"	v
-c1_test	xor.py	/^c1_test = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/test-1.mat')['c1b'][0][0:20]$/;"	v
-c1_train	xor.py	/^c1_train = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/train-1.mat')['c1a'][0][0:20]$/;"	v
+c1_test	xor.py	/^c1_test = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/test-1.mat')['c1b'][0]$/;"	v
+c1_train	xor.py	/^c1_train = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/train-1.mat')['c1a'][0]$/;"	v
 c2	array.py	/^c2 = rflatten_obj(c1)$/;"	v
 check_number_spikes	initial.py	/^        neuron_names, spike_monitor_names):$/;"	f
 collect_spikes	initial.py	/^def collect_spikes(indices, spikes, N_neurons):$/;"	f
@@ -125,11 +125,11 @@ synapse_names	xor.py	/^synapse_names = ['Si', 'Sl']$/;"	v
 tau	xor.py	/^tau = tau*br.ms$/;"	v
 tau	xor.py	/^tau=2.0$/;"	v
 test_features	xor.py	/^test_features = np.empty(N_test, dtype=object)$/;"	v
-test_labels	xor.py	/^test_labels = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/test-label.mat')['test_labels_body'][0:20]$/;"	v
+test_labels	xor.py	/^test_labels = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/test-label.mat')['test_labels_body']$/;"	v
 test_mnist	xor.py	/^test_mnist = [test_features, test_labels]$/;"	v
 trace_calls	xor.py	/^def trace_calls(frame, event, arg):$/;"	f
 train_features	xor.py	/^train_features = np.empty(N_train, dtype=object)$/;"	v
-train_labels	xor.py	/^train_labels = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/train-label.mat')['train_labels_body'][0:20]$/;"	v
+train_labels	xor.py	/^train_labels = scipy.io.loadmat('\/home\/sami\/Desktop\/mnist-train\/train-label.mat')['train_labels_body']$/;"	v
 train_mnist	xor.py	/^train_mnist = [train_features, train_labels]$/;"	v
 u0	xor.py	/^u0 = ((25*(-5*A*B + A**2 * B**2)) + 0) * br.mV$/;"	v
 u0	xor.py	/^u0 = (-8.588384 - 0*12)*br.mV$/;"	v

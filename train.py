@@ -142,6 +142,11 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
         count = 0
         while True:
 
+            label = mnist[1][number]
+            print "\tlabel = ", label
+            pudb.set_trace()
+            if label[0] != 0 and label[0] != 1:
+                break
             print "\tnumber = ", number, "count = ", count
             count += 1
 
@@ -159,7 +164,6 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
 
             #pudb.set_trace()
             S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
-            label = mnist[1][number]
             S_d = init.out(label)
 
             print "\t\tS_l = ", S_l
@@ -205,12 +209,15 @@ def Test(net, mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
     print "Testing"
     for number in range(start, end):
         #pudb.set_trace()
+        label = mnist[1][number]
+        print "\tlabel = ", label
+        if label[0] != 0 and label[0] != 1:
+            continue
         print "\tnumber = ", number
         net = snn.Run(net, mnist, number, T, v0, u0, I0, ge0, \
                     neuron_names, synapse_names, state_monitor_names, \
                     spike_monitor_names, parameters)
         S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
-        label = mnist[1][number]
         S_d = init.out(label)
         index = init.out_inverse(S_d)
         result = Compare(S_l, S_d)
