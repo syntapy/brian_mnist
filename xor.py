@@ -159,7 +159,7 @@ img = np.empty(img_dims)
 count = 0
 g = 2
 
-T = 8
+T = 6
 N_h = 1
 N_o = 1
 
@@ -190,7 +190,13 @@ net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
 net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                     neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
-start, end = 0, 12000#0
+F = open("train_results.txt", 'a')
+F.write("\n")
+F.write("=====================================\n\n")
+F.write(str(N_hidden[0]) + " hidden neuron\n")
+#F.write("\t" + "Training on images " + str(start) + " to " str(end) + "\n")
+
+start, end = 0, 120#00#0
 start_time = time.time()
 if trained == False:
     net = train.ReSuMe(net, train_mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
@@ -198,18 +204,17 @@ if trained == False:
 
 elapsed_time = time.time() - start_time
 
-F = open("train_results.txt", 'w')
-F.write(str(elapsed_time) + " to train on mnist images " + str(start) + " to " + str(end) + "\n")
+F.write("\t" + str(elapsed_time) + " to train on mnist images " + str(start) + " to " + str(end) + "\n")
 
 start_time = time.time()
-start, end = 0, 1000#0#0
+start, end = 0, 120#00#0#0
 hit, miss, hit_r, miss_r = train.Test(net, train_mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters )
 elapsed_time = time.time() - start_time
 
-F.write(str(elapsed_time) + " to test on mnist images " + str(start) + " to " + str(end) + "\n")
-F.write(str(hit) + " hits, " + str(miss) + " misses during testing\n")
+F.write("\t" + str(elapsed_time) + " to test on mnist images " + str(start) + " to " + str(end) + "\n")
+F.write("\t" + str(hit) + " hits, " + str(miss) + " misses during testing\n")
 
-F.write("Hit array: " + np.array_str(hit_r) + "\n")
-F.write("Miss array: " + np.array_str(miss_r) + "\n")
+F.write("\t" + "Hit array: " + np.array_str(hit_r) + "\n")
+F.write("\t" + "Miss array: " + np.array_str(miss_r) + "\n")
 F.close()

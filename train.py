@@ -92,17 +92,18 @@ def _set_out_spike(net, index, S_i, l, d):
         array handling etc...
     """
     if len(l) != d:
-        x, y, z = 1.8, 1.8, 1.0
+        x, y = 2.7, 6.8
         #pudb.set_trace()
         w = net['Sl'].w[:]
         if d == 1:
-            a = _resume_step(index, S_i, d, w)
-            b = _resume_step(index, S_i, x*d, w)
+            #pudb.set_trace()
+            dn = 7
+            a = _resume_step(index, S_i, x, w)
+            b = _resume_step(index, S_i, dn, w)
         elif d == 0:
             dn = l[0]/br.ms
-            a = _resume_step(index, S_i, x*dn, w)
+            a = _resume_step(index, S_i, y, w)
             b = _resume_step(index, S_i, dn, w)
-            z = -z
         return a - b
     return 0
 
@@ -126,6 +127,7 @@ def Compare(S_l, S_d):
 
 def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 
+    #pudb.set_trace()
     trained = False
     N = len(mnist[0])
     N_hidden_last = len(net[neuron_names[-2]])
@@ -134,64 +136,68 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
     N_h = 1
     N_o = 1
 
-    for number in range(start, end):
+    #for number in range(start, end):
+    number = start - 1
+    count = 0
+    while count < end - start:
 
-        print "number = ", number
+        #print "number = ", number
         dw = np.zeros(len(net[synapse_names[-1]]))
 
-        count = 0
-        while True:
+        number += 1
 
-            label = mnist[1][number]
-            print "\tlabel = ", label
-            pudb.set_trace()
-            if label[0] != 0 and label[0] != 1:
-                break
-            print "\tnumber = ", number, "count = ", count
+        label = mnist[1][number]
+        if label[0] == 0 or label[0] == 1:
             count += 1
-
-            N_h = init.out(mnist[1][number][0])
-            desired_index = number / 2
-
-            lst = range(N_hidden_last)
-            rnd.shuffle(lst)
-
+            print "number = ", number, "count = ", count
             k = 0
-            #pudb.set_trace()
-            net = snn.Run(net, mnist, number, T, v0, u0, I0, ge0, \
-                        neuron_names, synapse_names, state_monitor_names, \
-                        spike_monitor_names, parameters)
+            while True:
 
-            #pudb.set_trace()
-            S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
-            S_d = init.out(label)
+                k += 1
+                print "\tstep = ", k
+                N_h = init.out(mnist[1][number][0])
+                desired_index = number / 2
 
-            print "\t\tS_l = ", S_l
-            print "\t\tS_d = ", S_d
-            #sys.exit()
-            #pudb.set_trace()
-            t_min, t_max = min(S_i)[0], max(S_i)[0]
+                lst = range(N_hidden_last)
+                rnd.shuffle(lst)
 
-            modified = False
-            w = net[synapse_names[-1]].w[:]
-            for j in range(N_out):
-                #print "\t\ti = ", j
-                t_in_tmp = np.copy(S_i / br.ms)
-                t_in = t_in_tmp.flatten()
                 #pudb.set_trace()
-                dw = _set_out_spike(net, j, t_in, S_l[j], S_d[j])
-                #print "\t\t\tj, dw = ", j, ", ", dw
-                if type(dw) == np.ndarray:
-                    modified = True
-                    #w_tmp = w[j::4]
-                    w[j::4] += dw
-            print "\t\t\tDw = ", w - net[synapse_names[-1]].w[:]
-            print "\t\t\tw = ", w
-            net.restore()
-            net[synapse_names[-1]].w[:] = w
-            net.store()
-            if modified == False:
-                break
+                net = snn.Run(net, mnist, number, T, v0, u0, I0, ge0, \
+                            neuron_names, synapse_names, state_monitor_names, \
+                            spike_monitor_names, parameters)
+
+                #pudb.set_trace()
+                S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
+                S_d = init.out(label)
+
+                print "\t\tS_l = ", S_l
+                print "\t\tS_d = ", S_d
+                #sys.exit()
+                #pudb.set_trace()
+                t_min, t_max = min(S_i)[0], max(S_i)[0]
+
+                modified = False
+                w = net[synapse_names[-1]].w[:]
+                for j in range(N_out):
+                    #print "\t\ti = ", j
+                    t_in_tmp = np.copy(S_i / br.ms)
+                    t_in = t_in_tmp.flatten()
+                    #pudb.set_trace()
+                    #if number == 3 and j == 2:
+                    #    pudb.set_trace()
+                    dw = _set_out_spike(net, j, t_in, S_l[j], S_d[j])
+                    #print "\t\t\tj, dw = ", j, ", ", dw
+                    if type(dw) == np.ndarray:
+                        modified = True
+                        #w_tmp = w[j::4]
+                        w[j::4] += dw
+                #print "\t\t\tDw = ", w - net[synapse_names[-1]].w[:]
+                #print "\t\t\tw = ", w
+                net.restore()
+                net[synapse_names[-1]].w[:] = w
+                net.store()
+                if modified == False:
+                    break
 
     init._save_weights(net, synapse_names, 0, len(synapse_names))
     F = open("weights/trained.txt", 'w')
@@ -207,25 +213,31 @@ def Test(net, mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
     hit_ind, miss_ind = np.zeros(10, dtype=int), np.zeros(10, dtype=int)
 
     print "Testing"
-    for number in range(start, end):
+    #for number in range(start, end):
+    number = start - 1
+    count = 0
+    while count < end - start:
+        number += 1
         #pudb.set_trace()
         label = mnist[1][number]
         print "\tlabel = ", label
-        if label[0] != 0 and label[0] != 1:
-            continue
-        print "\tnumber = ", number
-        net = snn.Run(net, mnist, number, T, v0, u0, I0, ge0, \
-                    neuron_names, synapse_names, state_monitor_names, \
-                    spike_monitor_names, parameters)
-        S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
-        S_d = init.out(label)
-        index = init.out_inverse(S_d)
-        result = Compare(S_l, S_d)
-        if result == True:
-            hit_ind[index] += 1
-            hit += 1
-        else:
-            miss_ind[index] += 1
-            miss += 1
+        if label[0] == 0 or label[0] == 1:
+            count += 1
+            print "\tnumber = ", number
+            net = snn.Run(net, mnist, number, T, v0, u0, I0, ge0, \
+                        neuron_names, synapse_names, state_monitor_names, \
+                        spike_monitor_names, parameters)
+            S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
+            S_d = init.out(label)
+            print "\t\tS_l = ", S_l
+            print "\t\tS_d = ", S_d
+            index = init.out_inverse(S_d)
+            result = Compare(S_l, S_d)
+            if result == True:
+                hit_ind[index] += 1
+                hit += 1
+            else:
+                miss_ind[index] += 1
+                miss += 1
 
     return hit, miss, hit_ind, miss_ind

@@ -13,7 +13,7 @@ C	xor.py	/^C=-65.0$/;"	v
 Compare	train.py	/^def Compare(S_l, S_d):$/;"	f
 D	xor.py	/^D=6.0$/;"	v
 DesiredOut	train.py	/^def DesiredOut(label, bench):$/;"	f
-F	xor.py	/^F = open("train_results.txt", 'w')$/;"	v
+F	xor.py	/^F = open("train_results.txt", 'a')$/;"	v
 GetInSpikes	snn.py	/^def GetInSpikes(img, bench='mnist'):$/;"	f
 GetSpikes	initial.py	/^def GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):$/;"	f
 GetWeightRange	initial.py	/^def GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):$/;"	f
@@ -46,7 +46,7 @@ SetSynapses	initial.py	/^def SetSynapses(neuron_groups, synapse_names):$/;"	f
 SetWeights	initial.py	/^         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 SpikeMonitor	initial.py	/^def SpikeMonitor(neuron_groups, index_str):$/;"	f
 StateMonitors	initial.py	/^def StateMonitors(neuron_groups, index_str, index_record=0):$/;"	f
-T	xor.py	/^T = 8$/;"	v
+T	xor.py	/^T = 6$/;"	v
 Test	train.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 TestNodeRange	initial.py	/^def TestNodeRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f
