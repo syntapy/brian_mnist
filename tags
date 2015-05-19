@@ -21,12 +21,11 @@ I0	xor.py	/^I0 = 0*br.mV \/ br.ms$/;"	v
 L	train.py	/^def L(t):$/;"	f
 N	xor.py	/^N = 1$/;"	v
 N_h	xor.py	/^N_h = 1$/;"	v
-N_hidden	xor.py	/^N_hidden = [14]$/;"	v
-N_in	xor.py	/^N_in = 2$/;"	v
+N_hidden	xor.py	/^N_hidden = [16]$/;"	v
 N_in	xor.py	/^N_in = len(train_mnist[0][0])#(XX[0] * XX[1] * XX[2]) + (YY[0] * YY[1] * YY[2])$/;"	v
 N_liquid	xor.py	/^N_liquid = 0#[4, 5, 12] # Total, liquid in, liquid out$/;"	v
 N_o	xor.py	/^N_o = 1$/;"	v
-N_out	xor.py	/^N_out = 4$/;"	v
+N_out	xor.py	/^N_out = 1$/;"	v
 N_test	xor.py	/^N_test = len(c1_test)$/;"	v
 N_train	xor.py	/^N_train = len(c1_train)$/;"	v
 OutputTimeRange	initial.py	/^def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
@@ -46,7 +45,7 @@ SetSynapses	initial.py	/^def SetSynapses(neuron_groups, synapse_names):$/;"	f
 SetWeights	initial.py	/^         neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 SpikeMonitor	initial.py	/^def SpikeMonitor(neuron_groups, index_str):$/;"	f
 StateMonitors	initial.py	/^def StateMonitors(neuron_groups, index_str, index_record=0):$/;"	f
-T	xor.py	/^T = 6$/;"	v
+T	xor.py	/^T = 4.5$/;"	v
 Test	train.py	/^        neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 TestNodeRange	initial.py	/^def TestNodeRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 WeightChange	train.py	/^def WeightChange(s):$/;"	f

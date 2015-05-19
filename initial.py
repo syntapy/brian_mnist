@@ -90,8 +90,8 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, parameters, \
 
 def _initconditions(net, string, v0, u0, I0, ge0):
     if string == 'hidden':
-        net[string].v = v0 + 10*br.mV
-        net[string].u = (-8.588384 - 22)*br.mV
+        net[string].v = v0 + 0*10*br.mV
+        net[string].u = (-8.588384 - 0*22)*br.mV
     else:
         net[string].v = v0 + 0*10*br.mV
         net[string].u = (-8.588384 - 0*12)*br.mV
@@ -114,11 +114,11 @@ def _neuroninitconditions(net, neuron_names, v0, u0, I0, ge0):
 def SetSynapseInitialWeights(net, synapse_names, N_hidden):
     #pudb.set_trace()
     net[synapse_names[0]].connect('True')
-    net[synapse_names[0]].w[:]='21.8*(1+10.3*(2.0*rand() - 0.3))'
+    net[synapse_names[0]].w[:]='(0.2+10.3*(2.0*rand() - 0.3))'
     net[synapse_names[0]].delay='0*ms'
     #N_hidden = str(N_hidden)
     net[synapse_names[1]].connect('True')
-    net[synapse_names[1]].w[:,:]='2.13*(1 + 1.3*(2.0*rand() - 0.3))'
+    net[synapse_names[1]].w[:,:]='(1 + 3.3*(2.0*rand() - 0.3))'
     #net[synapse_names[1]].w[:] *= ''
     net[synapse_names[1]].delay='0*ms'
 
@@ -487,6 +487,7 @@ def _basic_training(net, neuron_str, synapse_str, spike_monitor_str, number, dw_
 
     return modified, net
 
+"""
 def out(label):
     if label == 0:
         N_h = [0, 0, 0, 1]
@@ -510,7 +511,23 @@ def out(label):
         N_h = [1, 0, 1, 0]
 
     return N_h
+"""
 
+def out(label):
+    if label == 0:
+        N_h = [0]
+    elif label == 1:
+        N_h = [1]
+
+    return N_h
+
+def out_inverse(S_d):
+    if S_d == [0]:
+        return 0
+    elif S_d == [1]:
+        return 1
+
+"""
 def out_inverse(S_d):
     #pudb.set_trace()
     if S_d == [0, 0, 0, 1]:
@@ -533,6 +550,7 @@ def out_inverse(S_d):
         return 8
     elif S_d == [1, 0, 1, 0]:
         return 8
+"""
 
 def set_number_spikes(net, mnist, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):
 

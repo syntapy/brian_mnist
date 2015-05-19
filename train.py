@@ -56,7 +56,7 @@ def ReadTimes(filename):
 
 def _resume_step(index, ta, tb, w):
     A = 2.5
-    tau = 1.5
+    tau = 0.7
     #pudb.set_trace()
     array = tb - ta
     max_indices = np.greater_equal(array, 0)
@@ -111,7 +111,7 @@ def _netoutput(net, spike_monitor_names, N_hidden):
     indices_l, spikes_l = net[spike_monitor_names[-1]].it
     indices_i, spikes_i = net[spike_monitor_names[-2]].it
 
-    S_l = init.collect_spikes(indices_l, spikes_l, 4)
+    S_l = init.collect_spikes(indices_l, spikes_l, 1)
     S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
 
     return S_l, S_i
@@ -172,25 +172,28 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
 
                 print "\t\tS_l = ", S_l
                 print "\t\tS_d = ", S_d
+                print "\t\tS_i = ", S_i
                 #sys.exit()
                 #pudb.set_trace()
                 t_min, t_max = min(S_i)[0], max(S_i)[0]
 
                 modified = False
                 w = net[synapse_names[-1]].w[:]
-                for j in range(N_out):
-                    #print "\t\ti = ", j
-                    t_in_tmp = np.copy(S_i / br.ms)
-                    t_in = t_in_tmp.flatten()
-                    #pudb.set_trace()
-                    #if number == 3 and j == 2:
-                    #    pudb.set_trace()
-                    dw = _set_out_spike(net, j, t_in, S_l[j], S_d[j])
-                    #print "\t\t\tj, dw = ", j, ", ", dw
-                    if type(dw) == np.ndarray:
-                        modified = True
-                        #w_tmp = w[j::4]
-                        w[j::4] += dw
+                #for j in range(N_out):
+                j = 0
+                #print "\t\ti = ", j
+                #pudb.set_trace()
+                t_in_tmp = np.copy(S_i / br.ms)
+                t_in = t_in_tmp.flatten()
+                #pudb.set_trace()
+                #if number == 3 and j == 2:
+                #pudb.set_trace()
+                dw = _set_out_spike(net, j, t_in, S_l[j], S_d[j])
+                #print "\t\t\tj, dw = ", j, ", ", dw
+                if type(dw) == np.ndarray:
+                    modified = True
+                    #w_tmp = w[j::4]
+                    w += dw
                 #print "\t\t\tDw = ", w - net[synapse_names[-1]].w[:]
                 #print "\t\t\tw = ", w
                 net.restore()
@@ -220,9 +223,9 @@ def Test(net, mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
         number += 1
         #pudb.set_trace()
         label = mnist[1][number]
-        print "\tlabel = ", label
         if label[0] == 0 or label[0] == 1:
             count += 1
+            print "\tlabel = ", label,
             print "\tnumber = ", number
             net = snn.Run(net, mnist, number, T, v0, u0, I0, ge0, \
                         neuron_names, synapse_names, state_monitor_names, \
@@ -231,6 +234,7 @@ def Test(net, mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
             S_d = init.out(label)
             print "\t\tS_l = ", S_l
             print "\t\tS_d = ", S_d
+            print "\t\tS_i = ", S_i
             index = init.out_inverse(S_d)
             result = Compare(S_l, S_d)
             if result == True:
