@@ -90,8 +90,8 @@ def SetNeuronGroups(N_in, N_liquid, N_hidden, N_out, parameters, \
 
 def _initconditions(net, string, v0, u0, I0, ge0):
     if string == 'hidden':
-        net[string].v = v0 + 0*10*br.mV
-        net[string].u = (-8.588384 - 0*22)*br.mV
+        net[string].v = v0 + 0*br.mV
+        net[string].u = (-8.588384 - 12.4)*br.mV
     else:
         net[string].v = v0 + 0*10*br.mV
         net[string].u = (-8.588384 - 0*12)*br.mV
@@ -111,11 +111,13 @@ def _neuroninitconditions(net, neuron_names, v0, u0, I0, ge0):
 
     return net
 
-def SetSynapseInitialWeights(net, synapse_names, N_hidden):
+def SetSynapseInitialWeights(net, synapse_names, N_in, N_hidden):
     #pudb.set_trace()
     net[synapse_names[0]].connect('True')
-    net[synapse_names[0]].w[:]='(0.2+10.3*(2.0*rand() - 0.3))'
-    net[synapse_names[0]].delay='0*ms'
+    #net[synapse_names[0]].w[:,:]='10*exp(-(i - j*(4.0 / 16) / 4.0))'
+    #net[synapse_names[0]].w[:]= '0.1*(0.2+10.3*(2.0*rand() - 0.3))'
+    net[synapse_names[0]].w[:]= '10'
+    net[synapse_names[0]].delay='9*rand()*ms'
     #N_hidden = str(N_hidden)
     net[synapse_names[1]].connect('True')
     net[synapse_names[1]].w[:,:]='(1 + 3.3*(2.0*rand() - 0.3))'
@@ -515,9 +517,9 @@ def out(label):
 
 def out(label):
     if label == 0:
-        N_h = [0]
-    elif label == 1:
         N_h = [1]
+    elif label == 1:
+        N_h = [0]
 
     return N_h
 

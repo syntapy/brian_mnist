@@ -150,6 +150,7 @@ def Run(net, mnist, number, T, v0, u0, I0, ge0, neuron_names, synapse_names, sta
 
     img, label = snn.ReadImg(number=number, mnist=mnist)
     #pudb.set_trace()
+    img = img * 3
     in_spikes = snn.GetInSpikes(img)
     net[neuron_names[0]].period = in_spikes*br.ms
     net.store()

@@ -104,7 +104,7 @@ levels=4
 #N_in = 2
 N_liquid = 0#[4, 5, 12] # Total, liquid in, liquid out
 #CP_liquid = 0.7
-N_hidden = [16]
+N_hidden = [4]
 N_out = 1
 
 #file_array = ["Si", "Sl", "Sa", "Sb"]
@@ -159,7 +159,7 @@ img = np.empty(img_dims)
 count = 0
 g = 2
 
-T = 4.5
+T = 10.0
 N_h = 1
 N_o = 1
 
@@ -185,7 +185,7 @@ spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)
 state_monitors = [state_monitor_in, state_monitor_hidden, state_monitor_out]
 
 net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
-net = init.SetSynapseInitialWeights(net, synapse_names, N_hidden)
+net = init.SetSynapseInitialWeights(net, synapse_names, N_in, N_hidden)
 net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
 net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                     neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)

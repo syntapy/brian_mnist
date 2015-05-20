@@ -55,16 +55,16 @@ def ReadTimes(filename):
     return desired_times
 
 def _resume_step(index, ta, tb, w):
-    A = 2.5
-    tau = 0.7
+    A = 15
+    tau = 1.7
     #pudb.set_trace()
     array = tb - ta
     max_indices = np.greater_equal(array, 0)
     max_indices = max_indices.astype(int, copy=False)
     d = array*max_indices
-    a = 0.2
+    #a = 0.2
 
-    return a + A*np.exp(-d / tau)
+    return A*np.exp(-d / tau)
 
 #def _resume_step_out(index, ta, tb, w):
 #    A = 0.7
@@ -92,7 +92,7 @@ def _set_out_spike(net, index, S_i, l, d):
         array handling etc...
     """
     if len(l) != d:
-        x, y = 2.7, 6.8
+        x, y = 5, 9
         #pudb.set_trace()
         w = net['Sl'].w[:]
         if d == 1:
@@ -104,7 +104,18 @@ def _set_out_spike(net, index, S_i, l, d):
             dn = l[0]/br.ms
             a = _resume_step(index, S_i, y, w)
             b = _resume_step(index, S_i, dn, w)
-        return a - b
+        return_val = a - b
+        #pudb.set_trace()
+        if min(return_val) > 0:
+            print "\t\t\t\tGREATER"
+            return return_val - min(return_val)
+        elif max(return_val) < 0:
+            print "\t\t\t\tLESS"
+            return return_val + max(return_val)
+        else:
+            print "\t\t\t\tNONE"
+            return return_val
+
     return 0
 
 def _netoutput(net, spike_monitor_names, N_hidden):
@@ -113,6 +124,13 @@ def _netoutput(net, spike_monitor_names, N_hidden):
 
     S_l = init.collect_spikes(indices_l, spikes_l, 1)
     S_i = init.collect_spikes(indices_i, spikes_i, N_hidden[-1])
+
+    #for i in range(len(S_l)):
+    #    if S_l[i] == []:
+    #        S_l[i].append(100*br.ms)
+    #for i in range(len(S_i)):
+    #    if S_i[i] == []:
+    #        S_i[i].append(100*br.ms)
 
     return S_l, S_i
 
@@ -169,13 +187,14 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
                 #pudb.set_trace()
                 S_l, S_i = _netoutput(net, spike_monitor_names, N_hidden)
                 S_d = init.out(label)
+                #P = P_Index(S_l, S_d)
 
                 print "\t\tS_l = ", S_l
                 print "\t\tS_d = ", S_d
                 print "\t\tS_i = ", S_i
                 #sys.exit()
                 #pudb.set_trace()
-                t_min, t_max = min(S_i)[0], max(S_i)[0]
+                #t_min, t_max = min(S_i)[0], max(S_i)[0]
 
                 modified = False
                 w = net[synapse_names[-1]].w[:]
@@ -191,6 +210,7 @@ def ReSuMe(net, mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, n
                 dw = _set_out_spike(net, j, t_in, S_l[j], S_d[j])
                 #print "\t\t\tj, dw = ", j, ", ", dw
                 if type(dw) == np.ndarray:
+                    print "\t\t\tdw = ", dw
                     modified = True
                     #w_tmp = w[j::4]
                     w += dw
