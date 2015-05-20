@@ -104,7 +104,7 @@ levels=4
 #N_in = 2
 N_liquid = 0#[4, 5, 12] # Total, liquid in, liquid out
 #CP_liquid = 0.7
-N_hidden = [4]
+N_hidden = [12]
 N_out = 1
 
 #file_array = ["Si", "Sl", "Sa", "Sb"]
@@ -196,7 +196,7 @@ F.write("=====================================\n\n")
 F.write(str(N_hidden[0]) + " hidden neuron\n")
 #F.write("\t" + "Training on images " + str(start) + " to " str(end) + "\n")
 
-start, end = 0, 4#0#00#0
+start, end = 0, 8#0#00#0
 start_time = time.time()
 if trained == False:
     net = train.ReSuMe(net, train_mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
@@ -207,7 +207,7 @@ elapsed_time = time.time() - start_time
 F.write("\t" + str(elapsed_time) + " to train on mnist images " + str(start) + " to " + str(end) + "\n")
 
 start_time = time.time()
-start, end = 0, 4#0#00#0#0
+start, end = 0, 8#0#00#0#0
 hit, miss, hit_r, miss_r = train.Test(net, train_mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters )
 elapsed_time = time.time() - start_time

@@ -89,7 +89,7 @@ def GetInSpikes(img, bench='mnist'):
     if img != None:
         img_dims = np.shape(img)
         if bench == 'mnist':
-            spikes = 1.0 / (img + 0.001)
+            spikes = 2.0 / (img + 0.001)
         elif bench == 'LI' or bench == 'xor':
 
             spikes = [-1, -1, -1]
@@ -150,7 +150,7 @@ def Run(net, mnist, number, T, v0, u0, I0, ge0, neuron_names, synapse_names, sta
 
     img, label = snn.ReadImg(number=number, mnist=mnist)
     #pudb.set_trace()
-    img = img * 3
+    img = 10*(img - np.min(img))
     in_spikes = snn.GetInSpikes(img)
     net[neuron_names[0]].period = in_spikes*br.ms
     net.store()
