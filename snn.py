@@ -51,8 +51,11 @@ def ReadImg(number=1, mnist=None, letter=None, bench='mnist', levels=None):
             label = -1
 
     elif bench == 'mnist' and mnist != None:
-        #pudb.set_trace()
         img = mnist[0][number]
+        if np.min(img) > 0:
+            img = img - np.min(img)
+        elif np.min(img) < 0:
+            img = img + abs(np.min(img))
         label = mnist[1][number]
 
     elif bench == 'LI':
@@ -149,8 +152,8 @@ def Run(net, mnist, number, T, v0, u0, I0, ge0, neuron_names, synapse_names, sta
         net.restore()
 
     img, label = snn.ReadImg(number=number, mnist=mnist)
-    #pudb.set_trace()
-    img = 10*(img - np.min(img))
+    img = 10*img
+    print "\t\timg = ", img
     in_spikes = snn.GetInSpikes(img)
     net[neuron_names[0]].period = in_spikes*br.ms
     net.store()

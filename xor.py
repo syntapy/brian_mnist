@@ -1,3 +1,6 @@
+"""
+Usage: xor <hidden_layers> <train_start> <train_end> <test_start> <test_end> <
+"""
 from operator import itemgetter
 import scipy.io
 import os.path as op
@@ -14,6 +17,7 @@ import array as arrr
 #pudb.set_trace()
 
 br.prefs.codegen.target = 'cython'
+N_hidden = [20]
 
 """
     This script simulates a basic set of feedforward spiking neurons (Izhikevich model).
@@ -22,10 +26,6 @@ br.prefs.codegen.target = 'cython'
 
     TO DO:
         Clean it up so that it is easier to tweak parameters
-        X Test the firing time range of a neuron
-        X Add multiple layers
-        X Tweak parameters to make it solve the XOR problem efficiently
-        X Work this into a script which takes arguments that denote whether it should train the weights and save them to a text file, or read the weights from a text file and just run it.
         Make SetNumSpikes(args...) more efficient, and have the weights made to no be on the border of a change in number of spikes
         Make SetNumSpikes(args...) better at fine tuning the weights, esp. when there are very large numbers of hidden layer neurons
 """
@@ -63,8 +63,8 @@ def rflatten(A):
 
     return return_val
 
-c1_train = scipy.io.loadmat('/home/sami/Desktop/mnist-train/train-1.mat')['c1a'][0]
-c1_test = scipy.io.loadmat('/home/sami/Desktop/mnist-train/test-1.mat')['c1b'][0]
+c1_train = scipy.io.loadmat('../data/train-1.mat')['c1a'][0]
+c1_test = scipy.io.loadmat('../data/test-1.mat')['c1b'][0]
 #pudb.set_trace()
 print c1_train[0]
 #sys.exit()
@@ -79,8 +79,8 @@ for i in xrange(N_train):
 for i in xrange(N_test):
     test_features[i] = rflatten(c1_test[i])
 
-train_labels = scipy.io.loadmat('/home/sami/Desktop/mnist-train/train-label.mat')['train_labels_body']
-test_labels = scipy.io.loadmat('/home/sami/Desktop/mnist-train/test-label.mat')['test_labels_body']
+train_labels = scipy.io.loadmat('../data/train-label.mat')['train_labels_body']
+test_labels = scipy.io.loadmat('../data/test-label.mat')['test_labels_body']
 print train_labels[0][0]
 train_mnist = [train_features, train_labels]
 test_mnist = [test_features, test_labels]
@@ -104,7 +104,7 @@ levels=4
 #N_in = 2
 N_liquid = 0#[4, 5, 12] # Total, liquid in, liquid out
 #CP_liquid = 0.7
-N_hidden = [12]
+#N_hidden = [34]
 N_out = 1
 
 #file_array = ["Si", "Sl", "Sa", "Sb"]
@@ -159,7 +159,7 @@ img = np.empty(img_dims)
 count = 0
 g = 2
 
-T = 10.0
+T = 14.0
 N_h = 1
 N_o = 1
 
@@ -187,7 +187,7 @@ state_monitors = [state_monitor_in, state_monitor_hidden, state_monitor_out]
 net = init.AddNetwork(neuron_groups, synapse_groups, state_monitors, spike_monitors, parameters)
 net = init.SetSynapseInitialWeights(net, synapse_names, N_in, N_hidden)
 net = init.SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names)
-net, trained = init.SetWeights(net, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
+net, trained = init.SetWeights(net, train_mnist, N_liquid, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                     neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
 F = open("train_results.txt", 'a')
@@ -196,9 +196,10 @@ F.write("=====================================\n\n")
 F.write(str(N_hidden[0]) + " hidden neuron\n")
 #F.write("\t" + "Training on images " + str(start) + " to " str(end) + "\n")
 
-start, end = 0, 8#0#00#0
+start, end = 0, 16
 start_time = time.time()
-if trained == False:
+if True:
+    print "=============================================TRAINING!!!!============================================="
     net = train.ReSuMe(net, train_mnist, start, end, Pc, N_hidden, T, N_h, N_o, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters)
 
@@ -207,8 +208,8 @@ elapsed_time = time.time() - start_time
 F.write("\t" + str(elapsed_time) + " to train on mnist images " + str(start) + " to " + str(end) + "\n")
 
 start_time = time.time()
-start, end = 0, 8#0#00#0#0
-hit, miss, hit_r, miss_r = train.Test(net, train_mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
+start, end = 0, 36
+hit, miss, hit_r, miss_r = train.Test(net, test_mnist, start, end, N_hidden, T, v0, u0, I0, ge0, \
                 neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters )
 elapsed_time = time.time() - start_time
 
