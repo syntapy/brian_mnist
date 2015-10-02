@@ -19,15 +19,18 @@ GetSpikes	initial.py	/^def GetSpikes(net, T, v0, u0, I0, ge0, neuron_names, syna
 GetWeightRange	initial.py	/^def GetWeightRange(net, T, num_spikes, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters, number=5):$/;"	f
 I0	xor.py	/^I0 = 0*br.mV \/ br.ms$/;"	v
 L	train.py	/^def L(t):$/;"	f
+M	if.py	/^M = br.StateMonitor(Nh, 'v', record=True)$/;"	v
 N	xor.py	/^N = 1$/;"	v
 N_h	xor.py	/^N_h = 1$/;"	v
 N_hidden	xor.py	/^N_hidden = [20]$/;"	v
 N_in	xor.py	/^N_in = len(train_mnist[0][0])#(XX[0] * XX[1] * XX[2]) + (YY[0] * YY[1] * YY[2])$/;"	v
+N_input	test_spikegenerator.py	/^N_input = 500$/;"	v
 N_liquid	xor.py	/^N_liquid = 0#[4, 5, 12] # Total, liquid in, liquid out$/;"	v
 N_o	xor.py	/^N_o = 1$/;"	v
 N_out	xor.py	/^N_out = 1$/;"	v
 N_test	xor.py	/^N_test = len(c1_test)$/;"	v
 N_train	xor.py	/^N_train = len(c1_train)$/;"	v
+Ni	if.py	/^Ni = br.SpikeGeneratorGroup(3, indices=indices, times=times)$/;"	v
 OutputTimeRange	initial.py	/^def OutputTimeRange(net, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
 P_Index	snn.py	/^def P_Index(S_d, S_l):$/;"	f
 P_Index	train.py	/^def P_Index(S_l, S_d):$/;"	f
@@ -38,6 +41,7 @@ ReadImg	snn.py	/^def ReadImg(number=1, mnist=None, letter=None, bench='mnist', l
 ReadTimes	initial.py	/^def ReadTimes(file_name):$/;"	f
 ReadTimes	train.py	/^def ReadTimes(filename):$/;"	f
 Run	snn.py	/^def Run(net, mnist, number, T, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
+S	if.py	/^S = br.Synapses(Ni, Nh,$/;"	v
 SetInitStates	initial.py	/^def SetInitStates(net, N_in, vr, v0, u0, I0, ge0, neuron_names, bench='xor'):$/;"	f
 SetNeuronGroups	initial.py	/^        eqs_hidden_neurons, reset, neuron_names):$/;"	f
 SetSynapseInitialWeights	initial.py	/^def SetSynapseInitialWeights(net, synapse_names, N_in, N_hidden):$/;"	f
@@ -75,10 +79,14 @@ _set_out_spike	train.py	/^def _set_out_spike(net, index, S_i, l, d, N_hidden):$/
 _string_to_weights	initial.py	/^def _string_to_weights(string, unit):$/;"	f
 _synapseindices	initial.py	/^def _synapseindices(N_hidden):$/;"	f
 _trained	initial.py	/^def _trained():$/;"	f
+a	if.py	/^a = 0.2$/;"	v
 a	xor.py	/^a = A \/ br.ms$/;"	v
+b	if.py	/^b = 0.7$/;"	v
 b	xor.py	/^b = B$/;"	v
 bench	xor.py	/^bench = bench$/;"	v
 bench	xor.py	/^bench='xor'$/;"	v
+c	if.py	/^c = 2.5$/;"	v
+c	test_spikegenerator.py	/^c = 0.5$/;"	v
 c	xor.py	/^c = C*br.mV$/;"	v
 c1	array.py	/^c1 = scipy.io.loadmat('data-600.mat')['c1'][0]$/;"	v
 c1_test	xor.py	/^c1_test = scipy.io.loadmat('..\/data\/test-1.mat')['c1b'][0]$/;"	v
@@ -86,6 +94,7 @@ c1_train	xor.py	/^c1_train = scipy.io.loadmat('..\/data\/train-1.mat')['c1a'][0]
 c2	array.py	/^c2 = rflatten_obj(c1)$/;"	v
 check_number_spikes	initial.py	/^        neuron_names, spike_monitor_names):$/;"	f
 collect_spikes	initial.py	/^def collect_spikes(indices, spikes, N_neurons):$/;"	f
+correlated_poisson	test_spikegenerator.py	/^def correlated_poisson(n, t, dt, rate, c):$/;"	f
 count	xor.py	/^count = 0$/;"	v
 d	xor.py	/^d = D*br.mV$/;"	v
 d_w	snn.py	/^def d_w(S_d, S_l, S_in):$/;"	f
@@ -94,6 +103,8 @@ g	xor.py	/^g = 2$/;"	v
 ge0	xor.py	/^ge0 = 0*br.mV$/;"	v
 img	xor.py	/^img = np.empty(img_dims)$/;"	v
 img_dims	xor.py	/^img_dims = 1$/;"	v
+indices	if.py	/^indices = np.asarray([0])$/;"	v
+input_spikes	test_spikegenerator.py	/^input_spikes = SpikeGeneratorGroup(N=N_input, indices=ids, times=times)$/;"	v
 levels	xor.py	/^levels = 1$/;"	v
 levels	xor.py	/^levels=4$/;"	v
 make2dList	snn.py	/^def make2dList(rows, cols):$/;"	f
@@ -108,9 +119,12 @@ objects	xor.py	/^objects = []$/;"	v
 out	initial.py	/^def out(label):$/;"	f
 out_inverse	initial.py	/^def out_inverse(S_d):$/;"	f
 parameters	xor.py	/^parameters = [a, b, c, d, tau, vt, vr]$/;"	v
+rate	test_spikegenerator.py	/^rate = 5.$/;"	v
 rflatten	xor.py	/^def rflatten(A):$/;"	f
 rflatten_obj	array.py	/^def rflatten_obj(A):$/;"	f
 set_number_spikes	initial.py	/^def set_number_spikes(net, mnist, layer, T, N_h, N_o, v0, u0, I0, ge0, neuron_names, synapse_names, state_monitor_names, spike_monitor_names, parameters):$/;"	f
+simtime	test_spikegenerator.py	/^simtime = 4. * second$/;"	v
+sm	test_spikegenerator.py	/^sm = SpikeMonitor(input_spikes)$/;"	v
 spike_monitor_names	xor.py	/^spike_monitor_names = ['sm_in', 'sm_h', 'sm_out']$/;"	v
 spike_monitors	xor.py	/^spike_monitors = init.AllSpikeMonitors(neuron_groups, spike_monitor_names)$/;"	v
 start_time	xor.py	/^start_time = time.time()$/;"	v
@@ -123,9 +137,13 @@ synapse_groups	xor.py	/^synapse_groups = init.SetSynapses(neuron_groups, synapse
 synapse_names	xor.py	/^synapse_names = ['Si', 'Sl']$/;"	v
 tau	xor.py	/^tau = tau*br.ms$/;"	v
 tau	xor.py	/^tau=2.0$/;"	v
+tau1	if.py	/^tau1 = 5.00*br.ms$/;"	v
+tau2	if.py	/^tau2 = 1.25*br.ms$/;"	v
 test_features	xor.py	/^test_features = np.empty(N_test, dtype=object)$/;"	v
 test_labels	xor.py	/^test_labels = scipy.io.loadmat('..\/data\/test-label.mat')['test_labels_body']$/;"	v
 test_mnist	xor.py	/^test_mnist = [test_features, test_labels]$/;"	v
+times	if.py	/^times = np.asarray([6]) * br.ms$/;"	v
+times	test_spikegenerator.py	/^times = times * second$/;"	v
 trace_calls	xor.py	/^def trace_calls(frame, event, arg):$/;"	f
 train_features	xor.py	/^train_features = np.empty(N_train, dtype=object)$/;"	v
 train_labels	xor.py	/^train_labels = scipy.io.loadmat('..\/data\/train-label.mat')['train_labels_body']$/;"	v
@@ -134,6 +152,8 @@ u0	xor.py	/^u0 = ((25*(-5*A*B + A**2 * B**2)) + 0) * br.mV$/;"	v
 u0	xor.py	/^u0 = (-8.588384 - 0*12)*br.mV$/;"	v
 v0	xor.py	/^v0 = ((25*(-5 + A**2 * B**2)) + 40) * br.mV$/;"	v
 v0	xor.py	/^v0 = vr + 0*10*br.mV$/;"	v
+vr	if.py	/^vr = -76*br.mV$/;"	v
 vr	xor.py	/^vr = -74 * br.mV$/;"	v
 vr	xor.py	/^vr = -76.151418 * br.mV$/;"	v
+vt	if.py	/^vt = -15*br.mV$/;"	v
 vt	xor.py	/^vt = -15 * br.mV$/;"	v
